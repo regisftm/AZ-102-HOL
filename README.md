@@ -74,14 +74,16 @@ This workshop is organized in sequential laboratories, building on concepts from
 ### Additional Resources
 
 **Fortinet Documentation:**
-- FortiGate Azure HA Guide: https://docs.fortinet.com/document/fortigate-public-cloud/7.6.0/azure-administration-guide/161167/deploying-fortigate-vm-ha-in-azure
-- Hub-Spoke Architecture: https://docs.fortinet.com/document/fortigate-public-cloud/7.6.0/azure-administration-guide/849193/hub-and-spoke-topology
+
+- FortiGate Azure HA Guide: <https://docs.fortinet.com/document/fortigate-public-cloud/7.6.0/azure-administration-guide/161167/deploying-fortigate-vm-ha-in-azure>
+- Hub-Spoke Architecture: <https://docs.fortinet.com/document/fortigate-public-cloud/7.6.0/azure-administration-guide/849193/hub-and-spoke-topology>
 
 **Azure Documentation:**
-- Hub-Spoke Network Topology: https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke
-- Azure Load Balancer: https://learn.microsoft.com/azure/load-balancer/
-- User-Defined Routes: https://learn.microsoft.com/azure/virtual-network/virtual-networks-udr-overview
+
+- Hub-Spoke Network Topology: <https://learn.microsoft.com/azure/architecture/reference-architectures/hybrid-networking/hub-spoke>
+- Azure Load Balancer: <https://learn.microsoft.com/azure/load-balancer/>
+- User-Defined Routes: <https://learn.microsoft.com/azure/virtual-network/virtual-networks-udr-overview>
 
 ---
 
-*Workshop Version 1.0 - December 2024*
+*Workshop Version 1.0* - *December 2024*
