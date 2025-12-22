@@ -10,32 +10,9 @@ In this workshop, participants will deploy FortiGate in Active-Passive High Avai
 
 At the core of this solution is FortiGate HA with Azure Load Balancers (ELB/ILB), providing automatic failover and centralized security inspection. You'll learn how to leverage Azure's infrastructure for resilience while maintaining the security capabilities and operational consistency that FortiGate provides across hybrid environments.
 
-### Prerequisites
-
-**Required:**
-
-- Completed AZ-101 workshop OR equivalent hands-on FortiGate Azure experience
-- Understanding of Azure VNets, subnets, and basic routing
-- Familiarity with FortiGate web GUI and basic policy configuration
-- Active Azure subscription with Contributor access
-- 2 FortiFlex tokens for BYOL licensing (provided by instructor)
-
-**Recommended:**
-
-- NSE 4 FortiGate Security certification or equivalent knowledge
-- Experience with Azure CLI or PowerShell (helpful but not required)
-- Basic understanding of HA concepts
-
 ### Time Requirements
 
-**Total Duration:** 3 hours
-
-**Lab Breakdown:**
-
-- Lab 1: Hub VNet and FortiGate HA Deployment (45 minutes)
-- Lab 2: Spoke VNets and VNet Peering (30 minutes)
-- Lab 3: User-Defined Routes and Traffic Steering (30 minutes)
-- Lab 4: Security Policies and End-to-End Testing (45 minutes)
+The estimated time to complete this workshop is **3 hours**.
 
 ### Target Audience
 
@@ -50,40 +27,14 @@ At the core of this solution is FortiGate HA with Azure Load Balancers (ELB/ILB)
 
 ### What You'll Learn
 
-**Architecture & Design:**
-
-- Design hub-spoke topology with FortiGate HA in the hub
-- Implement network segmentation across multiple VNets
-- Plan IP addressing for complex multi-VNet environments
-- Understand Azure Load Balancer integration with FortiGate HA
-
-**FortiGate HA Configuration:**
-
-- Deploy FortiGate Active-Passive HA in Azure
-- Configure External Load Balancer (ELB) for internet traffic
-- Configure Internal Load Balancer (ILB) for east-west inspection
-- Understand HA failover mechanisms and health probes
-
-**Network Routing:**
-
-- Create and manage multiple route tables across VNets
-- Configure UDRs for comprehensive traffic inspection
-- Implement asymmetric routing patterns
-- Force all traffic through centralized security hub
-
-**Security Implementation:**
-
-- Create firewall policies for north-south traffic (internet access)
-- Implement east-west traffic inspection between VNets
-- Configure NAT for outbound internet access
-- Use FortiView and logs for traffic analysis
-
-**Advanced Scenarios:**
-
-- Test HA failover scenarios
-- Troubleshoot routing and connectivity issues
-- Validate traffic flows with packet captures
-- Demonstrate business value and ROI
+- Design centralized security topology with FortiGate HA in the hub and multiple spoke VNets, including IP addressing strategy
+- Configure Active-Passive high availability, failover mechanisms, and health probes
+- Configure both External Load Balancer (for internet traffic) and Internal Load Balancer (for east-west inspection) with FortiGate
+- Create route tables across VNets and implement user-defined routes to force traffic through the security hub
+- Understand north-south (internet) and east-west (inter-VNet) traffic flows, including asymmetric routing
+- Build security policies for different traffic types and configure outbound NAT
+- Use FortiView, logs, and packet captures for traffic analysis and connectivity validation
+- Test failure scenarios and demonstrate resilience for business value/ROI discussions
 
 ### Reference Architecture
 

@@ -139,35 +139,35 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 
 2. **Create External Subnet:**
    - Click **+ Add subnet**
-   - **Subnet name:** `External-Subnet`
+   - **Subnet name:** `External`
    - **Starting address:** `10.100.1.0`
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
 
 3. **Create Internal Subnet:**
    - Click **+ Add subnet**
-   - **Subnet name:** `Internal-Subnet`
+   - **Subnet name:** `Internal`
    - **Subnet address range:** `10.100.2.0`
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
 
 4. **Create HA Sync Subnet:**
    - Click **+ Add subnet**
-   - **Subnet name:** `HASync-Subnet`
+   - **Subnet name:** `HASync`
    - **Subnet address range:** `10.100.3.0`
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
 
 5. **Create Management Subnet:**
    - Click **+ Add subnet**
-   - **Subnet name:** `Management-Subnet`
+   - **Subnet name:** `HAMgmt`
    - **Subnet address range:** `10.100.4.0`
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
 
 6. **Create Management Subnet:**
    - Click **+ Add subnet**
-   - **Subnet name:** `Protected-Subnet`
+   - **Subnet name:** `Protected`
    - **Subnet address range:** `10.100.5.0`
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
@@ -176,11 +176,11 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 
 1. Click **Review + create**
 2. Verify all subnets are listed:
-   - External-Subnet (10.100.1.0/24)
-   - Internal-Subnet (10.100.2.0/24)
-   - HASync-Subnet (10.100.3.0/24)
-   - Management-Subnet (10.100.4.0/24)
-   - Protected-Subnet (10.100.5.0/24)
+   - External (10.100.1.0/24)
+   - Internal (10.100.2.0/24)
+   - HASync (10.100.3.0/24)
+   - HAMgmt (10.100.4.0/24)
+   - Protected (10.100.5.0/24)
 3. Click **Create**
 
 ### Validation
@@ -198,7 +198,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 | **External** | Internet-facing interface (port1) | North-south (internet) via External LB |
 | **Internal** | Application-facing interface (port2) | East-west (VNet-to-VNet) via Internal LB |
 | **HA Sync** | HA cluster communication (port3) | FGCP, config sync, session sync, heartbeat |
-| **Management** | Out-of-band management (port4) | Direct admin access via Public IPs |
+| **HAMgmt** | Out-of-band management (port4) | Direct admin access via Public IPs |
 | **Protected** | Protected workloads | Traffic inspected by the FortiGate |
 
 **Key Differences from AZ-101:**
@@ -271,11 +271,11 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 1. **Networking Tab:**
    - **Virtual Network:** Select **Redwood-Hub-VNet**
    - **Subnet Mapping:**
-     - **External Subnet:** `External-Subnet`
-     - **Internal Subnet:** `Internal-Subnet`
-     - **HA Sync Subnet:** `HASync-Subnet`
-     - **HA Management Subnet:** `Management-Subnet`
-     - **Protected Subnet:** `Protected-Subnet`
+     - **External Subnet:** `External`
+     - **Internal Subnet:** `Internal`
+     - **HA Sync Subnet:** `HASync`
+     - **HA Management Subnet:** `HAMgmt`
+     - **Protected Subnet:** `Protected`
    - **Accelerated Networking:** `Disabled`
      - ⚠️ Keep disabled for workshop consistency
 
@@ -329,6 +329,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 > **Deployment Duration:** 5-10 minutes typically
 >
 > While waiting, this is an excellent time to:
+>
 > - Review the architecture diagram
 > - Read ahead to Lab 2
 > - Take a 10-minute break
@@ -343,6 +344,7 @@ While deployment is running, let's understand what Azure is creating:
 ### 4.1 Virtual Machines
 
 **Redwood-Hub-FGT-A (Active):**
+
 - Instance: Standard_D8als_v6
 - Availability Zone: 1
 - 4 Network Interfaces (NICs):
@@ -354,6 +356,7 @@ While deployment is running, let's understand what Azure is creating:
 - Log Disk: 30 GB
 
 **Redwood-Hub-FGT-B (Passive):**
+
 - Identical configuration
 - Availability Zone: 2
 - Standby mode until failover
@@ -361,6 +364,7 @@ While deployment is running, let's understand what Azure is creating:
 ### 4.2 Load Balancers
 
 **External Load Balancer (Redwood-Hub-externalloadbalancer):**
+
 - **Frontend IP:** Redwood-Hub-ELB-PIP (public)
 - **Backend Pool:** FGT-A port1, FGT-B port1
 - **Health Probe:** TCP 8008 (FortiGate HA health endpoint)
@@ -368,6 +372,7 @@ While deployment is running, let's understand what Azure is creating:
 - **Purpose:** Distributes inbound internet traffic to active FortiGate
 
 **Internal Load Balancer (Redwood-Hub-internalloadbalancer):**
+
 - **Frontend IP:** 10.100.2.4 (first available IP in Internal-Subnet)
 - **Backend Pool:** FGT-A port2, FGT-B port2
 - **Health Probe:** TCP 8008
