@@ -8,14 +8,14 @@
 
 ### Objective
 
-Deploy the foundational hub VNet infrastructure and FortiGate Active-Passive HA cluster with Azure Load Balancers. This establishes the centralized security hub that will protect all spoke VNets in subsequent labs.
+Deploy the foundational Hub VNet infrastructure and FortiGate Active-Passive HA cluster with Azure Load Balancers. This establishes the centralized security hub that will protect all spoke VNets in subsequent labs.
 
 ### What You'll Build
 
 By the end of this lab, you will have:
 
 - ✅ Resource Group in Canada Central region
-- ✅ Hub Virtual Network (10.100.0.0/16) with 4 dedicated subnets
+- ✅ Hub Virtual Network (10.100.0.0/16) with 5 dedicated subnets
 - ✅ FortiGate Active-Passive HA cluster (2 VMs)
 - ✅ External Load Balancer with Public IP for internet traffic
 - ✅ Internal Load Balancer for east-west traffic inspection
@@ -26,34 +26,7 @@ By the end of this lab, you will have:
 
 After Lab 1:
 
-```text
-┌──────────────────────────────────────────────────┐
-│     Hub VNet (10.100.0.0/16) - Canada Central    │
-│                                                   │
-│  External Subnet (10.100.1.0/24)                 │
-│  ┌────────────────────────────────┐              │
-│  │  External Load Balancer        │◄──Internet   │
-│  │  Public IP: [TBD]              │              │
-│  └────────┬───────────────┬───────┘              │
-│           │               │                       │
-│      ┌────▼────┐     ┌────▼────┐                │
-│      │ FGT-A   │◄───►│ FGT-B   │                │
-│      │(Active) │ HA  │(Passive)│                │
-│      └────┬────┘     └────┬────┘                │
-│           │               │                       │
-│  Internal Subnet (10.100.2.0/24)                 │
-│  ┌────────▼───────────────▼───────┐              │
-│  │  Internal Load Balancer        │              │
-│  │  IP: 10.100.2.4               │              │
-│  └────────────────────────────────┘              │
-│                                                   │
-│  HA Sync Subnet (10.100.3.0/24)                  │
-│  [HA heartbeat and config sync]                  │
-│                                                   │
-│  Management Subnet (10.100.4.0/24)              │
-│  [Out-of-band management access]                │
-└──────────────────────────────────────────────────┘
-```
+![lab1-architecture](images/lab1-architecture.png)
 
 ### Business Context
 
@@ -90,6 +63,8 @@ A Resource Group provides the logical container for all Redwood Industries' hub 
    - **Region:** Select **Canada Central** from dropdown
      - ⚠️ **Important:** All resources in this workshop use Canada Central
 
+   ![configure-resource-group](images/step1.1.4-rg-creation.png)
+
 5. **Review and Create:**
    - Click **Review + create** button at bottom
    - Review the settings
@@ -99,7 +74,7 @@ A Resource Group provides the logical container for all Redwood Industries' hub 
 
 - ✅ Resource group appears in the list with name "Redwood-Hub-RG"
 - ✅ Region shows "Canada Central"
-- ✅ Status shows "Succeeded"
+- ✅ Status shows "Succeeded" in the `Notifications` tab
 
 ---
 
@@ -126,6 +101,8 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **Name:** Enter `Redwood-Hub-VNet`
    - **Region:** Select **Canada Central**
    - Click **Next**
+
+   ![vnet-creation-1](images/step2.2.1-vnet-creation.png)
 
 2. **Security Tab:**
    - Do not enable any security features (Bastion, DDoS, Firewall)
@@ -171,6 +148,8 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **Subnet address range:** `10.100.5.0`
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
+  
+   ![subnets-in-vnet](images/step2.3-vnet-creation-2.png)
 
 ### 2.4 Review and Create VNet
 
@@ -186,7 +165,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 ### Validation
 
 - ✅ VNet created successfully
-- ✅ All 4 subnets present with correct CIDR ranges
+- ✅ All 5 subnets present with correct CIDR ranges
 - ✅ Address space is 10.100.0.0/16
 
 ### Understanding the Subnet Architecture
