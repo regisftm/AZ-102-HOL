@@ -252,7 +252,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **FortiGate Image Version:** `7.6.4`
    - **Instance Type:** `Standard_D8als_v6`
      - ⚠️ **Required:** HA needs 4 NICs, minimum Standard_D8als_v6
-     - 8 vCPUs, 13 GB RAM
+     - 8 vCPUs, 16 GB RAM
      - Optimized for network security workloads
    - **Availability Option:** `Availability Zones`
      - FortiGate A: Zone 1
@@ -631,7 +631,7 @@ You have successfully deployed the hub infrastructure for Redwood Industries:
 
 ✅ **Resource Group:** Redwood-Hub-RG in Canada Central  
 ✅ **Hub VNet:** Redwood-Hub-VNet (10.100.0.0/16)  
-✅ **4 Dedicated Subnets:** External, Internal, HA Sync, Management  
+✅ **4 Dedicated Subnets:** External, Internal, HA Sync, and HAMgmt  
 ✅ **FortiGate HA Cluster:** 2 VMs in Active-Passive mode  
 ✅ **External Load Balancer:** Public IP for internet traffic  
 ✅ **Internal Load Balancer:** 10.100.2.4 for east-west inspection  
