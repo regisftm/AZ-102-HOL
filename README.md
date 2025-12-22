@@ -42,9 +42,8 @@ After completing this workshop, you will have deployed the following architectur
 
 ![reference-architecture](images/reference-archtecture.png)
 
-All traffic flows through FortiGate HA for inspection
-
-UDRs force traffic to Internal Load Balancer (10.100.2.4)
+- All traffic flows through FortiGate HA for inspection  
+- UDRs force traffic to Internal Load Balancer (10.100.2.4)
 
 ## Laboratories
 
