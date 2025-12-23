@@ -398,7 +398,6 @@ Follow the same process as Frontend, with these values:
    - Should be: `10.101.1.5`
    - Write this down
 
-
 #### 14.2 Backend VM IP
 
 1. **Navigate to Backend VM:**
@@ -420,6 +419,7 @@ Follow the same process as Frontend, with these values:
 ### Why .4 Not .1?
 
 Azure reserves first 4 IPs in each subnet:
+
 - `.0` = Network address
 - `.1` = Default gateway (Azure's virtual router)
 - `.2` & `.3` = Azure DNS
@@ -473,6 +473,7 @@ execute ping 10.103.1.4
 ```
 
 **Expected Results:**
+
 - ✅ All pings should succeed
 - This proves VNet peering is working
 - Traffic uses Azure backbone routing
@@ -495,17 +496,20 @@ Since VMs have no public IPs, we need to access them through Azure Serial Consol
    ![serial-console](images/step16.1-serial-consolet.gif)
 
 2. **Test Internet:**
+
    ```bash
    ping -c 3 8.8.8.8
    ```
 
 **Expected Result:**
+
 - ❌ Ping fails (no internet access)
 - This is correct - no UDRs or firewall policies configured yet
 
 **Method 2: SSH Through FortiGate:**
 
 From FortiGate CLI:
+
 ```bash
 # SSH to Frontend VM from FortiGate
 execute ssh azureuser@10.101.1.4
@@ -543,6 +547,7 @@ ping -c 3 10.103.1.4
 ```
 
 **Expected Result:**
+
 - ❌ **Fails** (same reason as above)
 - Spokes cannot communicate without UDRs forcing traffic through FortiGate
   
@@ -556,20 +561,23 @@ You have successfully deployed the spoke infrastructure for Redwood Industries:
 
 ✅ **Three Resource Groups:** Frontend, Backend, Database  
 ✅ **Three Spoke VNets:**
-   - Frontend VNet (10.101.0.0/16)
-   - Backend VNet (10.102.0.0/16)
-   - Database VNet (10.103.0.0/16)
+
+- Frontend VNet (10.101.0.0/16)
+- Backend VNet (10.102.0.0/16)
+- Database VNet (10.103.0.0/16)
 
 ✅ **Three Test VMs:**
-   - Frontend VM 1 (10.101.1.4)
-   - Frontend VM 2 (10.101.1.5)
-   - Backend VM (10.102.1.4)
-   - Database VM (10.103.1.4)
+
+- Frontend VM 1 (10.101.1.4)
+- Frontend VM 2 (10.101.1.5)
+- Backend VM (10.102.1.4)
+- Database VM (10.103.1.4)
 
 ✅ **Hub-Spoke Topology:**
-   - Three VNet peerings established
-   - Hub can reach all spokes
-   - Spokes cannot reach each other (for now)
+
+- Three VNet peerings established
+- Hub can reach all spokes
+- Spokes cannot reach each other (for now)
 
 ### Architecture Review
 
@@ -591,7 +599,6 @@ Current State After Lab 2:
 - Connectivity will break temporarily  
 - Lab 4 will restore it with firewall policies  
 
-
 ### Key Takeaways
 
 1. **Hub-Spoke Design:**
@@ -609,7 +616,6 @@ Current State After Lab 2:
    - Spokes completely isolated from internet
    - Access only through hub FortiGate
    - Follows zero-trust principles
-
 
 4. **Current Limitations:**
    - No spoke-to-spoke connectivity (peering is non-transitive)
@@ -633,6 +639,7 @@ Ensure you have recorded these IP addresses:
 Ready for **Lab 3: User-Defined Routes Configuration!**
 
 In Lab 3, you will:
+
 - Create route tables for all three spoke VNets
 - Configure UDRs pointing to Internal LB (10.100.2.4)
 - Force all traffic through FortiGate cluster
@@ -646,6 +653,7 @@ In Lab 3, you will:
 ### Issue: VNet Peering Shows "Updating" Forever
 
 **Solutions:**
+
 1. Wait 2 minutes and refresh page
 2. Check both VNets are in same Azure region
 3. Delete peering and recreate
@@ -654,6 +662,7 @@ In Lab 3, you will:
 ### Issue: Can't Ping Spoke VMs from FortiGate
 
 **Checklist:**
+
 1. Verify VNet peering status is "Connected"
 2. Check VM is running (Azure Portal → VM status)
 3. Verify correct IP address (should be .1.4 in each spoke)
@@ -664,6 +673,7 @@ In Lab 3, you will:
 **Expected:** VMs get first available IP (.4) in subnet
 
 **If different:**
+
 1. Verify VM is in correct VNet/subnet
 2. Check if multiple NICs attached
 3. IP may be .5 or .6 if .4 was already taken
@@ -671,6 +681,7 @@ In Lab 3, you will:
 ### Issue: Can't Access Serial Console
 
 **Solutions:**
+
 1. Verify Boot diagnostics enabled on VM
 2. Try "Restart" on VM to reset console
 3. Use SSH from FortiGate as alternative
@@ -679,6 +690,7 @@ In Lab 3, you will:
 ### Issue: Inter-Spoke Connectivity Fails
 
 **Checklist:**
+
 1. Verify VNet peering allows forwarded traffic (both directions)
 2. Check NSGs don't block traffic
 3. Verify VMs are running
