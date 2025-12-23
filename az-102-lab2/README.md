@@ -25,34 +25,10 @@ By the end of this lab, you will have:
 
 After Lab 2:
 
-```text
-                 Hub VNet (10.100.0.0/16)
-              ┌────────────────────────────┐
-              │  FortiGate HA Cluster      │
-              │  ┌──────────────────────┐  │
-              │  │ FGT-A ◄────► FGT-B   │  │
-              │  └──────────────────────┘  │
-              │                            │
-              │  Internal LB: 10.100.2.4   │
-              └────────────────────────────┘
-                   ▲         ▲         ▲
-              (Peering) (Peering) (Peering)
-                   │         │         │
-        ┌──────────┘         │         └──────────┐
-        │                    │                    │
-┌───────▼────────┐  ┌────────▼───────┐  ┌────────▼───────┐
-│ Frontend VNet  │  │ Backend VNet   │  │ Database VNet  │
-│ 10.101.0.0/16  │  │ 10.102.0.0/16  │  │ 10.103.0.0/16  │
-│                │  │                │  │                │
-│ ┌────────────┐ │  │ ┌────────────┐ │  │ ┌────────────┐ │
-│ │ 2 x Web-VM │ │  │ │ App-VM     │ │  │ │ DB-VM      │ │
-│ │ .1.4 , 1.5 │ │  │ │ .1.4       │ │  │ │ .1.4       │ │
-│ └────────────┘ │  │ └────────────┘ │  │ └────────────┘ │
-└────────────────┘  └────────────────┘  └────────────────┘
+![lab2-reference-architecture](images/lab2-reference-architecture.png)
 
-Note: No internet access or inter-spoke connectivity yet
-UDRs and firewall policies configured in Labs 3-4
-```
+> [!WARNING]
+> No internet access or inter-spoke connectivity yet. UDRs and firewall policies configured in Labs 3-4
 
 ### Business Context
 
@@ -63,6 +39,7 @@ Redwood Industries is migrating their three-tier application to Azure:
 - **Database VNet:** SQL databases and data storage
 
 Security requirements demand:
+
 - Complete network segmentation between tiers
 - All inter-tier traffic must flow through FortiGate for inspection
 - No direct communication between tiers (zero-trust model)
@@ -143,7 +120,7 @@ Security requirements demand:
 
 2. **Create Protected Subnet:**
    - Click **+ Add subnet**
-   - **Subnet Name:** `Protected-Subnet`
+   - **Subnet Name:** `Protected`
    - **Subnet Starting address:** `10.101.1.0`
    - **Subnet Size:** `/24 (256 addresses)`
    - Click **Add**
@@ -198,7 +175,7 @@ Security requirements demand:
 
 1. **Networking Tab:**
    - **Virtual network:** `Redwood-Frontend-VNet`
-   - **Subnet:** `Protected-Subnet (10.101.1.0/24)`
+   - **Subnet:** `Protected (10.101.1.0/24)`
    - **Public IP:** `None` ⚠️
    - **NIC network security group:** `Basic`
    - **Public inbound ports:** `None`
@@ -223,7 +200,7 @@ Security requirements demand:
 ### Validation
 
 - ✅ Frontend VNet created (10.101.0.0/16)
-- ✅ Protected-Subnet created (10.101.1.0/24)
+- ✅ Protected subnet created (10.101.1.0/24)
 - ✅ Frontend VMs deploying (no public IP)
 
 ---
@@ -239,7 +216,7 @@ Follow the same process as Frontend, with these values:
    - **Name:** `Redwood-Backend-VNet`
    - **Region:** `Canada Central`
    - **IPv4 address space:** `10.102.0.0/16`
-   - **Subnet name:** `Protected-Subnet`
+   - **Subnet name:** `Protected`
    - **Subnet Starting address:** `10.102.1.0`
    - **Subnet Size:** `/24 (256 addresses)`
 
@@ -254,7 +231,7 @@ Follow the same process as Frontend, with these values:
    - **Username:** `azureuser`
    - **Password:** Same as frontend (or different, your choice)
    - **Virtual network:** `Redwood-Backend-VNet`
-   - **Subnet:** `Protected-Subnet (10.102.1.0/24)`
+   - **Subnet:** `Protected (10.102.1.0/24)`
    - **Public IP:** `None` ⚠️
 
 ### Validation
@@ -273,7 +250,7 @@ Follow the same process as Frontend, with these values:
    - **Name:** `Redwood-Database-VNet`
    - **Region:** `Canada Central`
    - **IPv4 address space:** `10.103.0.0/16`
-   - **Subnet name:** `Protected-Subnet`
+   - **Subnet name:** `Protected`
    - **Subnet range:** `10.103.1.0/24`
 
 ### Step 9: Create Database VM
@@ -287,16 +264,13 @@ Follow the same process as Frontend, with these values:
    - **Username:** `azureuser`
    - **Password:** Same as others
    - **Virtual network:** `Redwood-Database-VNet`
-   - **Subnet:** `Protected-Subnet (10.103.1.0/24)`
+   - **Subnet:** `Protected (10.103.1.0/24)`
    - **Public IP:** `None` ⚠️
 
 ### Validation
 
 - ✅ Database VNet created (10.103.0.0/16)
 - ✅ Database VM deploying (no public IP)
-
-> [!TIP]
-> While VMs are deploying (2-3 minutes each), this is a good time to review the architecture diagram and understand how the hub-spoke topology will work.
 
 ---
 
@@ -327,6 +301,8 @@ Follow the same process as Frontend, with these values:
    - Click **Redwood-Hub-VNet**
    - Click **Settings** → **Peerings** in left menu
 
+   ![vnet-peerings](images/step10.1-peerings.png)
+
 #### 10.2 Add Frontend Peering
 
 1. **Create Peering:**
@@ -343,15 +319,19 @@ Follow the same process as Frontend, with these values:
    - **Peering link name:** `Hub-to-Frontend`
    - Allow `Redwood-Hub-VNet` to access `Redwood-Frontend-VNet`: `Allow (default)`
 
+   ![add-peering](images/step10.2.3-add-peering.png)
+
 4. Click **Add**
 
 #### 10.3 Verify Peering Status
 
 1. **Check Status:**
-   - **Perring sync status** shows `Fully Synchornized`
+   - **Peering sync status** shows `Fully Synchornized`
    - **Peering state** should change from `Updating` to `Connected`
    - This may take 30-60 seconds
    - Refresh page if needed
+
+   ![verify-peering](images/step10.3-verify-peering.png)
 
 ### Step 11: Create Hub-to-Backend Peering
 
@@ -362,7 +342,7 @@ Follow the same process as Frontend, with these values:
    - **Remote VNet (Backend) peering link name:** `Backend-to-Hub`
    - **Virtual network:** `Redwood-Backend-VNet`
    - **Local VNet (Hub) peering link name:** `Hub-to-Backend`
-   - **Allow traffic options:** Same as Frontend (both directions allowed)
+   - **Allow traffic options:** Same as Frontend
 
 3. Click **Add**
 
@@ -387,6 +367,8 @@ Follow the same process as Frontend, with these values:
      - Hub-to-Frontend: Fully Synchronized - Connected
      - Hub-to-Backend: Fully Synchronized - Connected
      - Hub-to-Database: Fully Synchronized - Connected
+
+   ![peering-summary](images/step13-verification-all-peerings.png)
 
 ### Validation
 
@@ -495,6 +477,8 @@ execute ping 10.103.1.4
 - This proves VNet peering is working
 - Traffic uses Azure backbone routing
 
+![ping-test](images/step15.2-ping-test.png)
+
 ### Step 16: Verify No Internet Access (Expected)
 
 #### 16.1 Access Frontend VM
@@ -504,9 +488,11 @@ Since VMs have no public IPs, we need to access them through Azure Serial Consol
 **Method 1: Azure Serial Console (Recommended for this test):**
 
 1. **Navigate to Frontend VM:**
-   - Go to **Redwood-Frontend-RG** → **Redwood-Frontend-VM**
+   - Go to **Redwood-Frontend-RG** → **Redwood-Frontend-VM-1**
    - Click **Help** → **Serial console** in left menu
    - Login with `azureuser` credentials
+
+   ![serial-console](images/step16.1-serial-consolet.gif)
 
 2. **Test Internet:**
    ```bash
@@ -587,37 +573,24 @@ You have successfully deployed the spoke infrastructure for Redwood Industries:
 
 ### Architecture Review
 
-```text
 Current State After Lab 2:
 
-        Hub VNet (10.100.0.0/16)
-     ┌──────────────────────────┐
-     │  FortiGate HA Cluster    │
-     │  Internal LB: 10.100.2.4 │
-     └──────────────────────────┘
-          ▲         ▲         ▲
-          │    Peerings       │
-          │                   │
-    ┌─────┴────┐  ┌────┴────┐  ┌────┴─────┐
-    │ Frontend │  │ Backend │  │ Database │
-    │ .101.0/16│  │.102.0/16│  │.103.0/16 │
-    │          │  │         │  │          │
-    │ VM: .1.4 │  │ VM: .1.4│  │ VM: .1.4 │
-    └──────────┘  └─────────┘  └──────────┘
+![lab2-reference-architecture](images/lab2-reference-architecture.png)
 
-Current Connectivity:
-✓ Hub ↔ All Spokes (via peering)
-✗ Frontend ↔ Backend (no route - peering is non-transitive)
-✗ Frontend ↔ Database (no route - peering is non-transitive)
-✗ Backend ↔ Database (no route - peering is non-transitive)
-✗ Internet access (not configured)
+#### Current Connectivity
 
+✓ Hub ↔ All Spokes (via peering)  
+✗ Frontend ↔ Backend (no route - peering is non-transitive)  
+✗ Frontend ↔ Database (no route - peering is non-transitive)  
+✗ Backend ↔ Database (no route - peering is non-transitive)  
+✗ Internet access (not configured)  
 
-After Lab 3 (UDRs):
-Traffic will be forced through FortiGate
-Connectivity will break temporarily
-Lab 4 will restore it with firewall policies
-```
+#### After Lab 3 (UDRs)
+
+- Traffic will be forced through FortiGate  
+- Connectivity will break temporarily  
+- Lab 4 will restore it with firewall policies  
+
 
 ### Key Takeaways
 
@@ -713,66 +686,10 @@ In Lab 3, you will:
 
 ---
 
-## Understanding What's Next
-
-### Current Traffic Flow
-
-**Hub to Spoke:**
-
-```text
-FortiGate → Azure peering → Spoke VM
-(Direct route, no inspection)
-```
-
-**Spoke to Spoke:**
-
-**Spoke to Spoke:**
-
-```text
-Frontend VM → ❌ NO ROUTE ❌
-(VNet peering is non-transitive - spokes cannot reach each other)
-```
-
-### After Lab 3 (UDRs Added)
-
-**Hub to Spoke:**
-
-```text
-FortiGate → Internal LB → FortiGate → Hub peering → Spoke VM
-(Traffic hairpins through FortiGate for inspection)
-```
-
-**Spoke to Spoke:**
-
-```text
-Frontend VM → UDR → Internal LB → FortiGate inspection → 
-Internal LB → Hub peering → Backend VM
-(Full inspection path)
-```
-
-### Why Add UDRs?
-
-**Without UDRs:**
-
-- Traffic uses shortest Azure path
-- Bypasses FortiGate completely
-- No security inspection
-- No logging or visibility
-
-**With UDRs:**
-
-- Force all traffic to Internal LB (10.100.2.4)
-- Internal LB sends to active FortiGate
-- Complete traffic inspection
-- Full logging and control
-
----
-
 **End of Lab 2**  
-*Estimated completion time: 30 minutes*  
-*Next: Lab 3 - User-Defined Routes Configuration*
+
+*Next*: [*Lab 3 - User-Defined Routes Configuration*](/az-102-lab3/README.md)
 
 ---
 
-*Lab Guide Version 1.0 - December 2024*  
-*Questions? Ask your instructor or refer to the troubleshooting section.*
+*Lab Guide Version 1.0* - *December 2024*

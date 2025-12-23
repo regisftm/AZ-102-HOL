@@ -178,7 +178,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 | **Internal** | Application-facing interface (port2) | East-west (VNet-to-VNet) via Internal LB |
 | **HA Sync** | HA cluster communication (port3) | FGCP, config sync, session sync, heartbeat |
 | **HAMgmt** | Out-of-band management (port4) | Direct admin access via Public IPs |
-| **Protected** | Protected workloads | Traffic inspected by the FortiGate |
+| **Protected** | Protected workloads in the vNet | Traffic inspected by the FortiGate |
 
 **Key Differences from AZ-101:**
 
@@ -222,6 +222,8 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **FortiGate Name Prefix:** `Redwood-Hub`
      - This creates VMs: Redwood-Hub-FGT-A and Redwood-Hub-FGT-B
 
+   ![basic-tab](images/step3.2.1.png)
+
 2. Click **Next**
 
 ### 3.3 Configure Instance Settings
@@ -243,6 +245,8 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **FortiGate A FortiFlex:** `[Token 1 from instructor]`
    - **FortiGate B FortiFlex:** `[Token 2 from instructor]`
 
+   ![instance-tab](images/step3.3-instance.png)
+
 3. Click **Next**
 
 ### 3.4 Configure Networking
@@ -257,6 +261,8 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
      - **Protected Subnet:** `Protected`
    - **Accelerated Networking:** `Disabled`
      - ⚠️ Keep disabled for workshop consistency
+
+   ![alt text](images/step3.4-netowrking.png)
 
 2. Click **Next: Public IP**
 
@@ -282,6 +288,8 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **SKU:** `Standard`
    - **Routing preference:** `Microsoft network`
    - Click **OK**
+
+   ![pip-](images/step3.5-pip.png)
 
 4. Click **Next: Review + create**
 
@@ -310,7 +318,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
 > While waiting, this is an excellent time to:
 >
 > - Review the architecture diagram
-> - Read ahead to Lab 2
+> - Read ahead to Step 4
 > - Take a 10-minute break
 > - Discuss FortiGate HA concepts with instructor
 
@@ -327,10 +335,10 @@ While deployment is running, let's understand what Azure is creating:
 - Instance: Standard_D8als_v6
 - Availability Zone: 1
 - 4 Network Interfaces (NICs):
-  - port1: External-Subnet
-  - port2: Internal-Subnet
-  - port3: HASync-Subnet
-  - port4: Management-Subnet
+  - port1: External subnet
+  - port2: Internal subnet
+  - port3: HASync subnet
+  - port4: HAMgmt subnet
 - OS Disk: 2 GB (FortiOS)
 - Log Disk: 30 GB
 
@@ -338,6 +346,7 @@ While deployment is running, let's understand what Azure is creating:
 
 - Identical configuration
 - Availability Zone: 2
+- Same NIC configurations
 - Standby mode until failover
 
 ### 4.2 Load Balancers
@@ -388,6 +397,8 @@ While deployment is running, let's understand what Azure is creating:
      - 1 Route table
      - 1 Deployment
      - Additional managed disks and NICs
+
+   ![rg-deploymens](images/step5.1.2-deployment.gif)
 
 ### 5.2 Verify Network Configuration
 
@@ -466,15 +477,16 @@ Before proceeding, verify:
 
 ### 6.2 Verify FortiGate A Status
 
-1. **Dashboard Overview:**
+1. **Dashboard > Status**
    - Verify **System Information** widget shows:
      - **Host Name:** Redwood-Hub-FGT-A
      - **Version:** FortiOS 7.6.4
      - **Serial Number:** Should start with `FGVM`
-     - **System Status:** OK (green)
+
+   ![dashboard-status](images/step6.2.1-dasboard.png)
 
 2. **Check HA Status:**
-   - Click **+Add widget** 
+   - Click **+Add widget**
    - Under **System** session, select the **HA Status** widget click on it
    - Click **OK**
    - Close the **Add Dashboard Widget** tab
@@ -483,6 +495,8 @@ Before proceeding, verify:
    - **Primary:** Redwood-Hub-FGT-A
    - **Seconday:** Redwood-Hub-FGT-B
    - **State Changed:** Should be a few seconds behind the **Uptime**
+
+   ![ha-status](images/step6.2.2-ha-status.gif)
 
    > [!NOTE]
    > HA synchronization may take 2-3 minutes after deployment. If cluster status doesn't show 2 members immediately, wait 3 minutes and refresh.
@@ -494,6 +508,8 @@ Before proceeding, verify:
      - **port2** (Internal): IP from Internal-Subnet, **Admin. access: Probe Response**
      - **port3** (HA): IP from HASync-Subnet
      - **port4** (MGMT): IP from Management-Subnet, **Admin. access: PING, HTTPS, SSH, FTM**
+
+   ![network-interface](images/step6.2.3-interfaces.png)
 
 ### 6.3 Verify HA Configuration
 
@@ -508,6 +524,8 @@ Before proceeding, verify:
      - **Heartbeat Interface:** port3 (HASync-Subnet)
      - **Management Interface Reservation:** port4
    - Don't change anything, click **Cancel**
+
+   ![alt text](images/step6.3-ha-config.gif)
 
    > [!TIP]
    > If Status shows "Out of Sync", wait 2-3 minutes. Initial config sync can take time. If still out of sync after 5 minutes, check troubleshooting section.
@@ -581,21 +599,41 @@ Before proceeding, verify:
    - Click on each one of them and explore the status and other metrics
    - Redwood-Hub-FGT-A instance should be the health one
 
-### 8.2 Understand Traffic Flow
+   ![lb-health-probe](images/step8.1.2-lb-heath-probe.png)
+
+### 8.2 Understand Traffic Flow (to be configured)
 
 **Internet-Bound Traffic (North-South):**
+
 ```text
-Spoke VM → UDR → Internal LB (10.100.2.4) 
-         → Active FGT port2 → Inspect → FGT port1 
-         → External LB → Internet
+Spoke VM  
+   ↓ 
+UDR forces to ILB (10.100.2.4)  
+   ↓  
+Active FortiGate port2 receives  
+   ↓  
+Policy inspection / NAT applied  
+   ↓  
+Exits via port1 directly to internet  
+   ↓  
+Response returns same path  
 ```
 
 **Inter-VNet Traffic (East-West):**
 ```text
-Spoke1 VM → UDR → Internal LB (10.100.2.4)
-          → Active FGT port2 → Inspect
-          → Active FGT port2 → Internal LB
-          → Hub routing → Spoke2 VM
+Spoke VM
+   ↓
+UDR forces to ILB (10.100.2.4)
+   ↓
+Active FortiGate port2 receives
+   ↓
+Policy inspection (port2 → port2 hairpin)
+   ↓
+FortiGate forwards to Backend VNet
+   ↓
+Backend VM receives
+   ↓
+Response follows same path back
 ```
 
 **Key Point:** Internal LB (10.100.2.4) becomes the critical next-hop for all routing in Lab 3.
@@ -619,26 +657,11 @@ You have successfully deployed the hub infrastructure for Redwood Industries:
 
 ### Architecture Review
 
-```text
 Deployed Infrastructure:
-┌─────────────────────────────────────────────────┐
-│  Hub VNet (10.100.0.0/16)                       │
-│  ┌───────────────────────────────────────────┐ │
-│  │  External LB (Public IP)                  │ │
-│  └──────┬──────────────┬──────────────────────┘ │
-│         │              │                        │
-│    ┌────▼─────┐   ┌────▼─────┐                │
-│    │ FGT-A    │◄─►│ FGT-B    │                │
-│    │ Active   │HA │ Passive  │                │
-│    └────┬─────┘   └────┬─────┘                │
-│         │              │                        │
-│  ┌──────▼──────────────▼───────┐               │
-│  │  Internal LB (10.100.2.4)   │               │
-│  └──────────────────────────────┘               │
-│                                                 │
-│  [Ready for spoke VNets in Lab 2]              │
-└─────────────────────────────────────────────────┘
-```
+
+![lab1-architecture](images/lab1-architecture.png)
+
+Ready for spoke VNets in Lab 2
 
 ### Key Takeaways
 
@@ -678,6 +701,7 @@ Before moving to Lab 2, ensure you have recorded:
 Ready for **Lab 2: Spoke VNets Deployment and VNet Peering!**
 
 In Lab 2, you will:
+
 - Create three spoke VNets (frontend, backend, database)
 - Deploy test VMs in each spoke
 - Establish VNet peering from all spokes to hub
@@ -690,10 +714,12 @@ In Lab 2, you will:
 ### Issue: HA Cluster Not Forming
 
 **Symptoms:**
+
 - Dashboard shows only 1 cluster member
 - HA status shows "Standalone" mode
 
 **Solutions:**
+
 1. Wait 5 minutes - HA negotiation can take time
 2. Verify both VMs are running (Azure Portal > VMs)
 3. Check HASync-Subnet connectivity:
@@ -706,6 +732,7 @@ In Lab 2, you will:
 ### Issue: Can't Access FortiGate Web GUI
 
 **Checklist:**
+
 1. Verify VM is running (Azure Portal > VM status)
 2. Verify Public IP assigned (check Management-Subnet NIC)
 3. Try different browser or incognito mode
@@ -715,6 +742,7 @@ In Lab 2, you will:
 ### Issue: Configuration Not Syncing Between HA Members
 
 **Checklist:**
+
 1. Verify HA status shows "Synchronized" (System > HA > Status)
 2. Check HASync-Subnet connectivity
 3. Ensure configuration changes made on PRIMARY unit only
@@ -724,10 +752,12 @@ In Lab 2, you will:
 ### Issue: Health Probe Failures
 
 **Symptoms:**
+
 - Load balancer shows 0 healthy instances
 - Traffic not flowing through FortiGate
 
 **Solutions:**
+
 1. Verify port 8008 is open on FortiGate (Administrative access: `Probe Response`)
 2. Verify FortiGate interface addressing matches subnet
 3. Check Azure Portal → Load Balancer → Health Probes for status
@@ -737,6 +767,7 @@ In Lab 2, you will:
 **Problem:** Internal LB assigned IP other than 10.100.2.4
 
 **Solution:**
+
 1. Delete Internal Load Balancer
 2. Recreate with static IP assignment of 10.100.2.4
 3. Or adjust UDRs in Lab 3 to match actual LB IP
@@ -744,11 +775,13 @@ In Lab 2, you will:
 ### Getting Help
 
 **During Workshop:**
+
 - Raise hand for instructor assistance
 - Check with neighbor if they encountered same issue
 - Review deployment logs in Azure Portal
 
 **After Workshop:**
+
 - Fortinet Community Forums
 - Azure Support (for Azure-specific issues)
 - Workshop GitHub repository for issues/questions
@@ -782,12 +815,14 @@ In Lab 2, you will:
 ### Session Synchronization
 
 **What Gets Synchronized:**
+
 - Firewall connections/sessions
 - IPsec VPN tunnels
 - NAT translations
 - Configuration changes
 
 **What Doesn't Get Synchronized (by default):**
+
 - DHCP leases
 - SSL VPN sessions (can be enabled)
 - Some routing tables
@@ -795,10 +830,9 @@ In Lab 2, you will:
 ---
 
 **End of Lab 1**  
-*Estimated completion time: 45 minutes*  
-*Next: Lab 2 - Spoke VNets Deployment and VNet Peering*
+
+*Next*: [*Lab 2 - Spoke VNets Deployment and VNet Peering*](/az-102-lab2/README.md)
 
 ---
 
-*Lab Guide Version 1.0 - December 2024*  
-*Questions? Ask your instructor or refer to the troubleshooting section.*
+*Lab Guide Version 1.0 - December 2024*
