@@ -28,47 +28,12 @@ By the end of this lab, you will have:
 
 Final Architecture After Lab 4:
 
-```text
-                    Internet
-                       ▲
-                       │
-                  External LB
-               (Public IP egress)
-                       ▲
-                       │
-         ┌─────────────┴─────────────┐
-         │   FortiGate HA Cluster    │
-         │   ┌───────────────────┐   │
-         │   │ FGT-A ◄──► FGT-B  │   │
-         │   │ Active    Passive │   │
-         │   └───────────────────┘   │
-         │                           │
-         │  Policies:                │
-         │  • Internet Access (NAT)  │
-         │  • East-West Inspection   │
-         │                           │
-         │   Internal LB: 10.100.2.4 │
-         └─────────────┬─────────────┘
-                       │
-              All traffic forced here
-                  (via UDRs)
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-   Frontend      Backend        Database
-   10.101.x       10.102.x      10.103.x
-        │              │              │
-   VM-1: .1.4    VM: .1.4       VM: .1.4
-   VM-2: .1.5
-        │              │              │
-    ✓ Internet    ✓ Internet    ✓ Internet
-    ✓ VM-1↔VM-2*  ✓ Frontend    ✓ Backend
-    ✓ Backend     ✓ Database    ✓ Frontend
-    ✓ Database
-    
-All traffic inspected, logged, and controlled
-*Intra-VNet traffic only inspected if micro-segmentation enabled
-```
+![lab4-reference-architecture](images/lab4-reference-architecture.png)
+
+- All traffic inspected, logged, and controlled
+- Intra-VNet traffic only inspected if micro-segmentation enabled
+
+---
 
 ### Business Context
 
@@ -129,6 +94,8 @@ Address objects provide reusable definitions for networks in firewall policies.
    - **Routing Configuration:** ✓ Enable
    - Click **OK**
 
+   ![address-creation](images/step2.2-address-creation.gif)
+
 #### 2.2 Create Backend VNet Address Object
 
 1. **Create New Address:**
@@ -171,6 +138,8 @@ Address objects provide reusable definitions for networks in firewall policies.
    - **Routing Configuration:** ✓ Enable
    - Click **OK**
 
+   ![addr-grp-creation](images/step2.4-addr-grp-creation.gif)
+
 > [!NOTE]
 > Address groups simplify policy creation when multiple networks need the same treatment.
 
@@ -201,7 +170,7 @@ Azure routing via VNet peering
 Spoke VNet destination
 ```
 
-**Key Point:** 
+**Key Point:**
 
 - Next-hop is Azure's default gateway for the Internal subnet: **10.100.2.1**
 - This is NOT the Internal Load Balancer (10.100.2.4)
@@ -209,6 +178,7 @@ Spoke VNet destination
 - FortiGate to spokes uses normal Azure routing through the default gateway
 
 **Why 10.100.2.1?**
+
 - Azure reserves .1 in every subnet as the default gateway
 - This is Azure's virtual router
 - Handles VNet peering routing automatically
@@ -236,6 +206,7 @@ Frontend VM (10.101.1.4) receives packet
 ```
 
 **Key Asymmetry:**
+
 - **Inbound (spoke→FortiGate):** Via ILB (10.100.2.4) - for HA support
 - **Outbound (FortiGate→spoke):** Via Azure gateway (10.100.2.1) - native routing
 
@@ -256,6 +227,8 @@ This is normal and expected in Azure NVA architectures!
    - **Administrative Distance:** `10` (default)
    - **Comment:** `Route to Frontend VNet via Azure routing`
    - Click **OK**
+
+   ![static-route-creation](images/step3.2-static-route.png)
 
 #### 3.3 Create Route to Backend VNet
 
@@ -288,11 +261,18 @@ This is normal and expected in Azure NVA architectures!
    - Should see 3 new routes for spoke VNets
    - All with gateway 10.100.2.1 via port2
 
+   ![all-static-routes](images/step3.4.val-1-static-routes.png)
+
 2. **Check Routing Table:**
    - Navigate to **Dashboard** → **Network** widget
    - Click **Static & Dynamic Routing**
+
+   ![static-routes-dashboard](images/step3.4.val-2a-static-routes.png)
+
    - Or use CLI: `get router info routing-table all`
    - Verify routes appear as active
+
+   ![static-routes-cli](images/step3.4.val-2b-static-routes.png)
 
 ---
 
