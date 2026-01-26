@@ -142,7 +142,7 @@ The hub VNet provides the IP address space and subnets for FortiGate HA infrastr
    - **Size:** `/24 (256 addresses)`
    - Click **Add**
 
-6. **Create Management Subnet:**
+6. **Create Protected Subnet:**
    - Click **+ Add subnet**
    - **Subnet name:** `Protected`
    - **Subnet address range:** `10.100.5.0`
